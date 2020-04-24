@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">GetItRight</string>
+    <string name="play_button">Play!</string>
+    <string name="highscores_button">High scores</string>
+    <string name="exit_button">Exit</string>
+    <string name="category_activity_title">Categories</string>
+    <string name="list_categories_url">https://opentdb.com/api_category.php</string>
+</resources>
