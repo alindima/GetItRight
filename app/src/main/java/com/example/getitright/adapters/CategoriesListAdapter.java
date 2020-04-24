@@ -9,7 +9,8 @@ import android.widget.Button;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.getitright.R;
-import com.example.getitright.models.Category;
+import com.example.getitright.db.entities.Category;
+
 import java.util.List;
 
 public class CategoriesListAdapter extends RecyclerView.Adapter<CategoriesListAdapter.ViewHolder> {
