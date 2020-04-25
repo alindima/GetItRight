@@ -39,17 +39,20 @@ public class CategoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_categories);
 
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Loading...");
-        progressDialog.setTitle("Getting Categories");
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setCancelable(false);
-
+        initProgressDialog();
         actionBarSetup();
 
         categoryRepository = new CategoryRepository(CategoryActivity.this);
 
         initRecyclerView();
+    }
+
+    protected void initProgressDialog(){
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Loading...");
+        progressDialog.setTitle("Getting Categories");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
     }
 
     protected void actionBarSetup() {

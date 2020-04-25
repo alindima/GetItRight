@@ -1,6 +1,8 @@
 package com.example.getitright.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.Button;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.getitright.R;
+import com.example.getitright.activities.GameActivity;
 import com.example.getitright.db.entities.Category;
 
 import java.util.List;
@@ -45,10 +48,27 @@ public class CategoriesListAdapter extends RecyclerView.Adapter<CategoriesListAd
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.btnView.setText(mDataset.get(position).name);
+        holder.btnView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Integer id = mDataset.get(position).id;
+                String name = mDataset.get(position).name;
+                launchGameActivity(id, name);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return mDataset.size();
+    }
+
+    protected void launchGameActivity(Integer id, String name) {
+        Intent intent = new Intent(context, GameActivity.class);
+        Bundle b = new Bundle();
+        b.putInt("id", id);
+        b.putString("name", name);
+        intent.putExtras(b);
+        context.startActivity(intent);
     }
 }

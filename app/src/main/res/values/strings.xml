@@ -5,4 +5,5 @@
     <string name="exit_button">Exit</string>
     <string name="category_activity_title">Categories</string>
     <string name="list_categories_url">https://opentdb.com/api_category.php</string>
+    <string name="questions_for_category_url">https://opentdb.com/api.php?amount=10&amp;category=%d&amp;type=multiple</string>
 </resources>
