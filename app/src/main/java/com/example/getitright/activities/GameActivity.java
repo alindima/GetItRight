@@ -42,6 +42,7 @@ public class GameActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         if(b != null){
             categoryId = b.getInt("id");
+
             categoryName = b.getString("name");
         }
         initProgressDialog();
@@ -50,7 +51,6 @@ public class GameActivity extends AppCompatActivity {
         questionRepository = new QuestionRepository(this);
 
         getQuestionsForCategory();
-
     }
 
     protected void initProgressDialog(){
@@ -76,7 +76,7 @@ public class GameActivity extends AppCompatActivity {
         String src = String.format(getString(R.string.questions_for_category_url), categoryId);
         System.out.println("FETCHING FROM " + src);
 
-        JsonObjectRequest request = new JsonObjectRequest( src,null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest request = new JsonObjectRequest(src,null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 List<Question> questions = new ArrayList<>();
@@ -105,34 +105,29 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }
                 System.out.println(questions.toString());
-                deleteQuestionsFromDb();
-                insertQuestionsInDb(questions);
-                progressDialog.dismiss();
+
+                updateQuestionsInDb(questions);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 getQuestionsFromDb();
-                progressDialog.dismiss();
             }
         });
 
         RequestHelper.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-    protected void insertQuestionsInDb(List<Question> questions) {
-        questionRepository.insertManyTask(new OnInsertManyQuestionRepositoryActionListener() {
-            @Override
-            public void actionSuccess(){
-                getQuestionsFromDb();
-            };
-        }, questions.toArray(new Question[0]));
-    }
-
-    protected void deleteQuestionsFromDb() {
+    protected void updateQuestionsInDb(final List<Question> questions) {
         questionRepository.deleteAllFromCategoryTask(new OnDeleteAllFromCategoryQuestionRepositoryActionListener() {
             @Override
             public void actionSuccess(){
+                questionRepository.insertManyTask(new OnInsertManyQuestionRepositoryActionListener() {
+                    @Override
+                    public void actionSuccess(){
+                        progressDialog.dismiss();
+                    };
+                }, questions.toArray(new Question[0]));
             };
         }, categoryId);
     }
@@ -141,6 +136,8 @@ public class GameActivity extends AppCompatActivity {
         questionRepository.getAllFromCategoryTask(new OnGetAllFromCategoryQuestionRepositoryActionListener() {
             @Override
             public void actionSuccess(List<Question> questions){
+                progressDialog.dismiss();
+
                 if(questions.size() > 0){
                     System.out.println("DIN BD: " + questions.toString());
                 }else{

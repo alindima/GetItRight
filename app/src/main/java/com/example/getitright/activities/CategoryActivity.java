@@ -2,7 +2,6 @@ package com.example.getitright.activities;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -116,35 +115,28 @@ public class CategoryActivity extends AppCompatActivity {
 
                 setCategoriesRecyclerViewData(categories);
 
-                deleteCategoriesFromDb();
-                insertCategoriesInDb(categories);
-
                 progressDialog.dismiss();
+                updateCategoriesInDb(categories);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 getCategoriesFromDb();
-
-                progressDialog.dismiss();
             }
         });
 
         RequestHelper.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-    protected void insertCategoriesInDb(List<Category> categories) {
-        categoryRepository.insertAllTask(new OnInsertAllCategoryRepositoryActionListener() {
-            @Override
-            public void actionSuccess(){
-            };
-        }, categories.toArray(new Category[0]));
-    }
-
-    protected void deleteCategoriesFromDb() {
+    protected void updateCategoriesInDb(final List<Category> categories){
         categoryRepository.deleteAllTask(new OnDeleteAllCategoryRepositoryActionListener() {
             @Override
             public void actionSuccess(){
+                categoryRepository.insertAllTask(new OnInsertAllCategoryRepositoryActionListener() {
+                    @Override
+                    public void actionSuccess(){
+                    };
+                }, categories.toArray(new Category[0]));
             };
         });
     }
@@ -160,6 +152,7 @@ public class CategoryActivity extends AppCompatActivity {
                             "No internet connection", Toast.LENGTH_LONG);
                     toast.show();
                 }
+                progressDialog.dismiss();
             };
         });
     }
