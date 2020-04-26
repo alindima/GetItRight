@@ -2,6 +2,8 @@ package com.example.getitright.activities;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -17,20 +19,29 @@ import com.example.getitright.db.repositories.listeners.OnDeleteAllCategoryRepos
 import com.example.getitright.db.repositories.listeners.OnDeleteAllFromCategoryAnswerRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnDeleteAllFromCategoryQuestionRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnGetAllFromCategoryQuestionRepositoryActionListener;
+import com.example.getitright.db.repositories.listeners.OnGetAnswersForQuestionAnswerRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnInsertAllCategoryRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnInsertManyAnswerRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnInsertManyQuestionRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnSelectAllCategoryRepositoryActionListener;
+import com.example.getitright.fragments.QuestionFragment;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.text.Html;
+import android.util.Base64;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
@@ -39,6 +50,12 @@ public class GameActivity extends AppCompatActivity {
     ProgressDialog progressDialog;
     QuestionRepository questionRepository;
     AnswerRepository answerRepository;
+    private Integer currentScore;
+    private Integer currentQuestionIndex;
+    private List<Question> questions;
+    private FragmentManager fragmentManager;
+    private Integer numberOfQuestions;
+    private Integer indexOfCorrectAnswer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +72,7 @@ public class GameActivity extends AppCompatActivity {
 
         questionRepository = new QuestionRepository(this);
         answerRepository = new AnswerRepository(this);
+        fragmentManager = getSupportFragmentManager();
 
         getQuestionsForCategory();
     }
@@ -101,12 +119,12 @@ public class GameActivity extends AppCompatActivity {
                         Question question = new Question();
                         JSONObject questionJSON = results.getJSONObject(index);
 
-                        question.text = questionJSON.getString("question");
+                        question.text = new String(Base64.decode(questionJSON.getString("question"), Base64.DEFAULT));
                         question.categoryId = categoryId;
                         questions.add(question);
 
                         Answer answer = new Answer();
-                        answer.text = questionJSON.getString("correct_answer");
+                        answer.text = new String(Base64.decode(questionJSON.getString("correct_answer"), Base64.DEFAULT));
                         answer.isCorrect = true;
                         answer.question_name = question.text;
                         answers.add(answer);
@@ -115,7 +133,7 @@ public class GameActivity extends AppCompatActivity {
                         for(int i = 0; i < 3; i++){
                             Answer incorrectAnswer = new Answer();
                             incorrectAnswer.isCorrect = false;
-                            incorrectAnswer.text = incorrectAnswers.getString(i);
+                            incorrectAnswer.text = new String(Base64.decode(incorrectAnswers.getString(i), Base64.DEFAULT));
                             incorrectAnswer.question_name = question.text;
                             answers.add(incorrectAnswer);
                         }
@@ -125,7 +143,8 @@ public class GameActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                System.out.println(questions.toString());
+                GameActivity.this.questions = questions;
+                numberOfQuestions = questions.size();
 
                 updateQuestionsInDb(questions, answers);
             }
@@ -161,6 +180,7 @@ public class GameActivity extends AppCompatActivity {
                     @Override
                     public void actionSuccess() {
                         progressDialog.dismiss();
+                        startGameFlow();
                     }
                 }, answers.toArray(new Answer[0]));
             }
@@ -174,7 +194,9 @@ public class GameActivity extends AppCompatActivity {
                 progressDialog.dismiss();
 
                 if(questions.size() > 0){
-                    System.out.println("DIN BD: " + questions.toString());
+                    numberOfQuestions = questions.size();
+                    GameActivity.this.questions = questions;
+                    startGameFlow();
                 }else{
                     Toast toast = Toast.makeText(GameActivity.this,
                             "No internet connection", Toast.LENGTH_LONG);
@@ -182,6 +204,96 @@ public class GameActivity extends AppCompatActivity {
                 }
             };
         }, categoryId);
+    }
+
+    protected void startGameFlow(){
+        currentScore = 0;
+        currentQuestionIndex = 1;
+        final String questionName = questions.get(currentQuestionIndex).text;
+
+        answerRepository.getAnswersForQuestionTask(new OnGetAnswersForQuestionAnswerRepositoryActionListener() {
+            @Override
+            public void actionSuccess(List<Answer> answers) {
+
+                Collections.shuffle(answers);
+
+                for(int i = 0; i < answers.size(); i++){
+                    if(answers.get(i).isCorrect)
+                    {
+                        indexOfCorrectAnswer = i;
+                        break;
+                    }
+                }
+
+                QuestionFragment questionFragment = QuestionFragment.newInstance(currentScore, currentQuestionIndex, numberOfQuestions,
+                        questionName, answers.stream().map(answer -> answer.text).toArray(String[]::new));
+
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.mainLayout, questionFragment , "fragment-question");
+                fragmentTransaction.commitNow();
+                addAnswerClickHandlers();
+            }
+        }, questionName);
+    }
+
+    protected void addAnswerClickHandlers(){
+        Button answerBtn1 = this.findViewById(R.id.answerBtn1);
+        Button answerBtn2 = this.findViewById(R.id.answerBtn2);
+        Button answerBtn3 = this.findViewById(R.id.answerBtn3);
+        Button answerBtn4 = this.findViewById(R.id.answerBtn4);
+        Button[] buttons = {answerBtn1, answerBtn2, answerBtn3, answerBtn4};
+        for (Integer i = 0; i < buttons.length; i++) {
+            Button button = buttons[i];
+            Integer finalI = i;
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    validateAnswer(finalI);
+                }
+            });
+        }
+    }
+
+    protected void endGame(){
+        System.out.println("YOUR SCORE IS: " + currentScore);
+    }
+
+    protected void validateAnswer(Integer clickedAnswerButtonIndex){
+        currentQuestionIndex++;
+        if(currentQuestionIndex >= numberOfQuestions)
+        {
+            endGame();
+            return;
+        }
+
+        if(clickedAnswerButtonIndex.equals(indexOfCorrectAnswer)){
+            currentScore++;
+        }
+
+        final String questionName = questions.get(currentQuestionIndex).text;
+
+        answerRepository.getAnswersForQuestionTask(new OnGetAnswersForQuestionAnswerRepositoryActionListener() {
+            @Override
+            public void actionSuccess(List<Answer> answers) {
+                Collections.shuffle(answers);
+
+                for(int i = 0; i < answers.size(); i++){
+                    if(answers.get(i).isCorrect)
+                    {
+                        indexOfCorrectAnswer = i;
+                        break;
+                    }
+                }
+
+                QuestionFragment questionFragment = QuestionFragment.newInstance(currentScore, currentQuestionIndex, numberOfQuestions,
+                        questionName, answers.stream().map(answer -> answer.text).toArray(String[]::new));
+
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.mainLayout, questionFragment , "fragment-question");
+                fragmentTransaction.commitNow();
+                addAnswerClickHandlers();
+            }
+        }, questionName);
     }
 
 }
