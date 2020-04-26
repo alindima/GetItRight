@@ -5,10 +5,7 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
-@Entity(foreignKeys = @ForeignKey(entity = Question.class,
-        parentColumns = "id",
-        childColumns = "question_id",
-        onDelete = ForeignKey.CASCADE))
+@Entity
 public class Answer {
 
     @PrimaryKey(autoGenerate = true)
@@ -20,5 +17,5 @@ public class Answer {
     @ColumnInfo(name = "is_correct")
     public boolean isCorrect;
 
-    public int question_id;
+    public String question_name;
 }

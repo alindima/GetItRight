@@ -11,12 +11,13 @@ import java.util.List;
 
 @Dao
 public interface AnswerDao {
-    @Query("SELECT * FROM answer")
-    List<Answer> getAll();
+    @Query("SELECT * FROM answer WHERE question_name = :questionName")
+    List<Answer> getAnswersForQuestion(String questionName);
 
     @Insert
-    void insertAll(Answer... answers);
+    void insertMany(Answer... answers);
 
-    @Delete
-    void delete(Answer answer);
+    @Query("DELETE FROM answer WHERE question_name in (SELECT text from question where category_id = :categoryId)")
+    void deleteFromCategory(Integer categoryId);
+
 }

@@ -8,13 +8,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.getitright.R;
 import com.example.getitright.RequestHelper;
+import com.example.getitright.db.entities.Answer;
 import com.example.getitright.db.entities.Category;
 import com.example.getitright.db.entities.Question;
+import com.example.getitright.db.repositories.AnswerRepository;
 import com.example.getitright.db.repositories.QuestionRepository;
 import com.example.getitright.db.repositories.listeners.OnDeleteAllCategoryRepositoryActionListener;
+import com.example.getitright.db.repositories.listeners.OnDeleteAllFromCategoryAnswerRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnDeleteAllFromCategoryQuestionRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnGetAllFromCategoryQuestionRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnInsertAllCategoryRepositoryActionListener;
+import com.example.getitright.db.repositories.listeners.OnInsertManyAnswerRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnInsertManyQuestionRepositoryActionListener;
 import com.example.getitright.db.repositories.listeners.OnSelectAllCategoryRepositoryActionListener;
 
@@ -34,6 +38,7 @@ public class GameActivity extends AppCompatActivity {
     private String categoryName;
     ProgressDialog progressDialog;
     QuestionRepository questionRepository;
+    AnswerRepository answerRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +54,7 @@ public class GameActivity extends AppCompatActivity {
         actionBarSetup();
 
         questionRepository = new QuestionRepository(this);
+        answerRepository = new AnswerRepository(this);
 
         getQuestionsForCategory();
     }
@@ -80,6 +86,7 @@ public class GameActivity extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 List<Question> questions = new ArrayList<>();
+                List<Answer> answers = new ArrayList<>();
                 JSONArray results;
 
                 try {
@@ -96,8 +103,22 @@ public class GameActivity extends AppCompatActivity {
 
                         question.text = questionJSON.getString("question");
                         question.categoryId = categoryId;
-
                         questions.add(question);
+
+                        Answer answer = new Answer();
+                        answer.text = questionJSON.getString("correct_answer");
+                        answer.isCorrect = true;
+                        answer.question_name = question.text;
+                        answers.add(answer);
+
+                        JSONArray incorrectAnswers = questionJSON.getJSONArray("incorrect_answers");
+                        for(int i = 0; i < 3; i++){
+                            Answer incorrectAnswer = new Answer();
+                            incorrectAnswer.isCorrect = false;
+                            incorrectAnswer.text = incorrectAnswers.getString(i);
+                            incorrectAnswer.question_name = question.text;
+                            answers.add(incorrectAnswer);
+                        }
 
                     } catch (JSONException ex) {
                         System.out.println("Exception when parsing questions json");
@@ -106,7 +127,7 @@ public class GameActivity extends AppCompatActivity {
                 }
                 System.out.println(questions.toString());
 
-                updateQuestionsInDb(questions);
+                updateQuestionsInDb(questions, answers);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -118,17 +139,31 @@ public class GameActivity extends AppCompatActivity {
         RequestHelper.getInstance(getApplicationContext()).addToRequestQueue(request);
     }
 
-    protected void updateQuestionsInDb(final List<Question> questions) {
+    protected void updateQuestionsInDb(final List<Question> questions, final List<Answer> answers) {
         questionRepository.deleteAllFromCategoryTask(new OnDeleteAllFromCategoryQuestionRepositoryActionListener() {
             @Override
             public void actionSuccess(){
                 questionRepository.insertManyTask(new OnInsertManyQuestionRepositoryActionListener() {
                     @Override
                     public void actionSuccess(){
-                        progressDialog.dismiss();
+                        updateAnswersInDb(answers);
                     };
                 }, questions.toArray(new Question[0]));
             };
+        }, categoryId);
+    }
+
+    protected void updateAnswersInDb(final List<Answer> answers){
+        answerRepository.deleteAllFromCategoryTask(new OnDeleteAllFromCategoryAnswerRepositoryActionListener() {
+            @Override
+            public void actionSuccess() {
+                answerRepository.insertManyTask(new OnInsertManyAnswerRepositoryActionListener() {
+                    @Override
+                    public void actionSuccess() {
+                        progressDialog.dismiss();
+                    }
+                }, answers.toArray(new Answer[0]));
+            }
         }, categoryId);
     }
 
