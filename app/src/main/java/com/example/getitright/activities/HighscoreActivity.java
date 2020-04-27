@@ -40,6 +40,8 @@ public class HighscoreActivity extends AppCompatActivity {
 
         if(playerScore > 0){
             showNameInputFragment();
+        }else{
+            showScoresFragment();
         }
 
     }
@@ -74,7 +76,9 @@ public class HighscoreActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = nameInputEditText.getText().toString();
-                // AICI TREBUIE SA VEDEM SA NU AIBA : SAU ALTE SMECHERII
+
+                name = name.replace(":", "");
+
                 saveScoreEntry(name);
                 hideNameInputFragment(fragment);
                 showScoresFragment();
@@ -83,10 +87,10 @@ public class HighscoreActivity extends AppCompatActivity {
     }
 
     protected void saveScoreEntry(String name){
-        SharedPreferences sharedPref = this.getPreferences(MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences(HIGHSCORES_KEY, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        Set<String> scores = sharedPref.getStringSet(HIGHSCORES_KEY, new HashSet<>());
+        Set<String> scores = new HashSet<>(sharedPref.getStringSet(HIGHSCORES_KEY, new HashSet<>()));
         scores.add(name + ":" + playerScore.toString());
 
         editor.putStringSet(HIGHSCORES_KEY, scores);
@@ -96,7 +100,12 @@ public class HighscoreActivity extends AppCompatActivity {
     protected void hideNameInputFragment(NameInputFragment fragment){
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.remove(fragment);
-        fragmentTransaction.commitNow();
+
+        fragmentTransaction.runOnCommit(() -> {
+            showScoresFragment();
+        });
+
+        fragmentTransaction.commit();
     }
 
     protected void showScoresFragment(){
@@ -104,7 +113,7 @@ public class HighscoreActivity extends AppCompatActivity {
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.highscorePageContainer, highscoreFragment , "fragment-highscores-list");
-        fragmentTransaction.commitNow();
+        fragmentTransaction.commit();
 
         System.out.println("SHOWING ALL SCORES NICE JOB");
     }

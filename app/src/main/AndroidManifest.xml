@@ -15,7 +15,7 @@
         <activity android:name=".activities.HighscoreActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.CategoryActivity" />
+                android:value=".activities.MainActivity" />
         </activity>
         <activity android:name=".activities.GameActivity">
             <meta-data

@@ -27,53 +27,24 @@ import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
 public class HighscoreFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
     final String HIGHSCORES_KEY = "list_of_highscores";
     private List<Highscore> highscores;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public HighscoreFragment() {
-    }
-
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static HighscoreFragment newInstance(int columnCount) {
-        HighscoreFragment fragment = new HighscoreFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-
     }
 
-    protected void getHighscores(){
-        SharedPreferences sharedPref = getActivity().getPreferences(MODE_PRIVATE);
+    private void getHighscores(){
+        SharedPreferences sharedPref = getContext().getSharedPreferences(HIGHSCORES_KEY, MODE_PRIVATE);
         Set<String> scores = sharedPref.getStringSet(HIGHSCORES_KEY, new HashSet<>());
         highscores = new ArrayList<>();
+
         for(String s:scores){
             Highscore hs = new Highscore();
             String[] splitRes = s.split(":");
@@ -81,6 +52,7 @@ public class HighscoreFragment extends Fragment {
             hs.score = Integer.parseInt(splitRes[1]);
             highscores.add(hs);
         }
+
         Collections.sort(highscores);
     }
 
@@ -103,19 +75,4 @@ public class HighscoreFragment extends Fragment {
         return view;
     }
 
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
-    }
 }

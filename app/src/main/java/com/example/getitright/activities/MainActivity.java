@@ -24,12 +24,30 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    protected void launchHighscoresActivity() {
+        Intent intent = new Intent(this, HighscoreActivity.class);
+
+        Bundle b = new Bundle();
+        b.putInt("playerScore", -1);
+        intent.putExtras(b);
+
+        startActivity(intent);
+    }
+
     protected void registerEventHandlers() {
         Button playBtn = findViewById(R.id.playBtn);
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 launchCategoriesActivity();
+            }
+        });
+
+        Button highscoreBtn = findViewById(R.id.highscoresBtn);
+        highscoreBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                launchHighscoresActivity();
             }
         });
 

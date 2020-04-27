@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.example.getitright.R;
 
-import com.example.getitright.fragments.HighscoreFragment.OnListFragmentInteractionListener;
 import com.example.getitright.models.Highscore;
 
 import java.util.List;
@@ -32,8 +31,7 @@ public class MyHighscoreRecyclerViewAdapter extends RecyclerView.Adapter<MyHighs
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).name);
-        holder.mContentView.setText(mValues.get(position).score);
-
+        holder.mContentView.setText(mValues.get(position).score.toString());
     }
 
     @Override
@@ -52,11 +50,6 @@ public class MyHighscoreRecyclerViewAdapter extends RecyclerView.Adapter<MyHighs
             mView = view;
             mIdView = (TextView) view.findViewById(R.id.item_number);
             mContentView = (TextView) view.findViewById(R.id.content);
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
         }
     }
 }
