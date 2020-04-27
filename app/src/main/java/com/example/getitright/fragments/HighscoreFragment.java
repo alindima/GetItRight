@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,8 +14,6 @@ import android.view.ViewGroup;
 
 import com.example.getitright.R;
 import com.example.getitright.adapters.MyHighscoreRecyclerViewAdapter;
-import com.example.getitright.fragments.dummy.DummyContent;
-import com.example.getitright.fragments.dummy.DummyContent.DummyItem;
 import com.example.getitright.models.Highscore;
 
 import java.util.ArrayList;
