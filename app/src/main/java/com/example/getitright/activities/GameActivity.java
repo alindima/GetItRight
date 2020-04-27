@@ -27,6 +27,7 @@ import com.example.getitright.db.repositories.listeners.OnSelectAllCategoryRepos
 import com.example.getitright.fragments.QuestionFragment;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
@@ -256,6 +257,11 @@ public class GameActivity extends AppCompatActivity {
 
     protected void endGame(){
         System.out.println("YOUR SCORE IS: " + currentScore);
+        Intent intent = new Intent(this, HighscoreActivity.class);
+        Bundle b = new Bundle();
+        b.putInt("playerScore", currentScore);
+        intent.putExtras(b);
+        this.startActivity(intent);
     }
 
     protected void validateAnswer(Integer clickedAnswerButtonIndex){
