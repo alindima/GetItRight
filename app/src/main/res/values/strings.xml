@@ -6,7 +6,7 @@
     <string name="category_activity_title">Categories</string>
     <string name="list_categories_url">https://opentdb.com/api_category.php</string>
     <string name="questions_for_category_url">https://opentdb.com/api.php?amount=10&amp;category=%d&amp;type=multiple&amp;encode=base64</string>
-    <string name="enter_name">Congratulations!Enter your name:</string>
+    <string name="enter_name">Congratulations!\n Your score is: %s\n Enter your name:</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 

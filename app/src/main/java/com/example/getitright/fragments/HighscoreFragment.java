@@ -60,7 +60,6 @@ public class HighscoreFragment extends Fragment {
 
         getHighscores();
 
-        // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;

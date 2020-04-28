@@ -15,6 +15,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +44,11 @@ public class HighscoreActivity extends AppCompatActivity {
 
         if(playerScore > 0){
             showNameInputFragment();
+        }else if(playerScore == 0){
+            Toast toast = Toast.makeText(this, "Your score was 0! :(", Toast.LENGTH_LONG);
+            toast.show();
+
+            showScoresFragment();
         }else{
             showScoresFragment();
         }
@@ -63,6 +72,8 @@ public class HighscoreActivity extends AppCompatActivity {
 
         fragmentTransaction.runOnCommit(() -> {
             addNameInputListener(nameInputFragment);
+            TextView text =  nameInputFragment.getActivity().findViewById(R.id.name_label);
+            text.setText(String.format(getString(R.string.enter_name), playerScore.toString()));
         });
 
         fragmentTransaction.commit();
@@ -76,6 +87,10 @@ public class HighscoreActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = nameInputEditText.getText().toString();
+
+                if(name.trim().length() == 0){
+                    return;
+                }
 
                 name = name.replace(":", "");
 

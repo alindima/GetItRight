@@ -4,19 +4,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragments.MainActivityFragment">
+    tools:context=".fragments.MainActivityFragment"
+    >
 
     <LinearLayout android:layout_height="wrap_content" android:layout_width="match_parent" android:orientation="vertical" android:layout_weight="1">
-        <Button android:layout_height="wrap_content" android:layout_width="match_parent"
-            android:id="@+id/playBtn" android:text="@string/play_button" />
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:src="@drawable/logo"
+            android:layout_marginBottom="20dp" />
 
         <Button android:layout_height="wrap_content" android:layout_width="match_parent"
-            android:id="@+id/highscoresBtn" android:text="@string/highscores_button" />
+            android:id="@+id/playBtn" android:text="@string/play_button"
+            android:background="@drawable/play_button_shape"
+            android:textColor="#fff"
+            android:textSize="50sp"
+            android:layout_marginBottom="20sp"
+            />
+
+        <Button android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:id="@+id/highscoresBtn" android:text="@string/highscores_button"
+            android:background="@drawable/exit_button_shape"
+            android:textColor="#FFFC00"
+            android:textSize="20sp"/>
     </LinearLayout>
 
     <LinearLayout android:gravity="bottom" android:layout_height="wrap_content" android:layout_width="match_parent" android:orientation="vertical" android:layout_weight="1">
-        <Button android:layout_height="wrap_content" android:layout_width="match_parent"
-            android:id="@+id/exitBtn" android:text="@string/exit_button" />
+        <Button
+            android:background="@drawable/exit_button_shape"
+            android:textColor="#FFFC00"
+            android:textSize="20sp"
+            android:layout_height="wrap_content" android:layout_width="match_parent"
+            android:id="@+id/exitBtn" android:text="@string/exit_button"
+            android:layout_marginBottom="20dp"/>
     </LinearLayout>
 
 </LinearLayout>
