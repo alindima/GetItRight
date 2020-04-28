@@ -96,7 +96,6 @@ public class HighscoreActivity extends AppCompatActivity {
 
                 saveScoreEntry(name);
                 hideNameInputFragment(fragment);
-                showScoresFragment();
             }
         });
     }
